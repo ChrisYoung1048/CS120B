@@ -1,2 +1,2 @@
-# CS120B
-CS120B - Introduction to Embedded Systems
+# CS120B Introduction to Embedded Systems
+5 units, Prerequisite(s): CS 120A/EE 120A. Introduction to hardware and software design of digital computing systems embedded in electronic devices (such as digital cameras or portable video games). Topics include embedded processor programming, custom processor design, standard peripherals, memories, interfacing, and hardware/software tradeoffs. Interdisciplinary laboratory involves use of synthesis tools, programmable logic, and microcontrollers and development of working embedded systems. Cross-listed with EE 120B.
