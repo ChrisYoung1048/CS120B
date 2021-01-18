@@ -21,14 +21,14 @@ int main(void) {
 	/* Insert your solution below */
 	unsigned char tmpA, tmpB, count, i;
 	while (1) {
-		tmpA = PORTA;
-		tmpB = PORTB;
+		tmpA = PINA;
+		tmpB = PINB;
 		count = 0x00;
 		for (i = 0; i < 8; ++i) {
 			if ((tmpA & 0x01) == 1) count++;
 			if ((tmpB & 0x01) == 1) count++;
 			tmpA = tmpA >> 1;
-			tmpB = tmpA >> 1;
+			tmpB = tmpB >> 1;
 		}
 		PORTC = count;
 	}
