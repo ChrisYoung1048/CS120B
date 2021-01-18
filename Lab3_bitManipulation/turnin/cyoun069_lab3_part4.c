@@ -1,7 +1,7 @@
 /*	Author: Christopher Young - cyoun069@ucr.edu
  *  	Partner(s) Name: 
  *	Lab Section:
- *	Assignment: Lab #3  Exercise #5
+ *	Assignment: Lab #3  Exercise #4
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
@@ -14,24 +14,21 @@
 
 int main(void) {
 	/* Insert DDR and PORT initializations */
-	DDRD = 0x00; PORTD = 0xFF; // Configure port D's 8 pins as inputs
-	DDRB = 0x00; PORTB = 0x01; // Configure port B's 1st pin as inputs
+	DDRA = 0x00; PORTA = 0xFF; // Configure port A's 8 pins as inputs
+	DDRC = 0xFF; PORTC = 0x00; // Configure port B's 8 pins as outputs, initialize to 0s
+	DDRC = 0xFF; PORTC = 0x00; // Configure port C's 8 pins as outputs, initialize to 0s
 
 	/* Insert your solution below */
-	unsigned char tmpB;
-	unsigned int weight;
+	unsigned char tmpB, tmpC;
 	while (1) {
 		tmpB = 0x00;
+		tmpC = 0x00;
 
-		weight = 0x00;
-		weight = weight + PIND; // add the d input to total weight
-		weight = weight << 1; // shift the input left by 1
-		weight = weight | (PORTB & 0x01); // add the b0 input to the lsb
+		tmpB = (tmpB & 0xF0) | (PINA >> 4);
+		tmpC = (tmpC & 0x0F) | ((PINA & 0x0F) << 4);
 
-		if (weight >= 70) tmpB = tmpB | 0x02;
-		else if (weight > 5) tmpB = tmpB | 0x04;
-		
 		PORTB = tmpB;
+		PORTC = tmpC;
 	}
 	return 1;
 }
