@@ -1,7 +1,7 @@
 /*	Author: Christopher Young - cyoun069@ucr.edu
  *  	Partner(s) Name: 
  *	Lab Section:
- *	Assignment: Lab #4 Exercise #4
+ *	Assignment: Lab #4 Exercise #3
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
@@ -60,7 +60,6 @@ void TickFct() {
 				LS_State = LS_Step2;
 			}
 			else if ((PINA & 0x07) == 0x02) { //if !A2, A1, !A0 
-				PORTB = PINB ^ 0x01;
 				LS_State = LS_Step3;
 			}
 			else {
@@ -83,6 +82,9 @@ void TickFct() {
 	switch(LS_State) { // Actions
 		case LS_LockDown:
 			PORTB = 0x00;
+			break;
+		case LS_Step3:
+			PORTB = 0x01;
 			break;
 		default:
 			break;

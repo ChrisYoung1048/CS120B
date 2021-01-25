@@ -1,4 +1,4 @@
-# Test file for "cyoun069_lab4_part4.c"
+# Test file for "cyoun069_lab4_part3.c"
 
 
 # commands.gdb provides the following functions for ease:
@@ -86,29 +86,9 @@ expectPORTB 0x00
 expectPORTC LS_Wait
 checkResult
 
-test "PINA: 0x00, 0x04, 0x00, 0x01 -> PORTB: 0x01, PORTC: LS_Step3"
+test "PINA: 0x00, 0x04, 0x00, 0x01 -> PORTB: 0x00, PORTC: LS_Step3"
 set State = LS_Wait
 setPINA 0x00
-continue 2
-setPINA 0x04
-continue 2
-setPINA 0x00
-continue 2
-setPINA 0x01
-continue 2
-expectPORTB 0x01
-expectPORTC LS_Step3
-checkResult
-
-test "PINA: 0x00, 0x04, 0x00, 0x01, 0x04, 0x00, 0x01 -> PORTB: 0x00, PORTC: LS_Step3"
-set State = LS_Wait
-setPINA 0x00
-continue 2
-setPINA 0x04
-continue 2
-setPINA 0x00
-continue 2
-setPINA 0x01
 continue 2
 setPINA 0x04
 continue 2
