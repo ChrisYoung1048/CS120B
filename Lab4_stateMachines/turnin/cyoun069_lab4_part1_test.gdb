@@ -1,4 +1,4 @@
-# Test file for "Lab3_bitManipulation"
+# Test file for "cyoun069_lab4_part1.c"
 
 
 # commands.gdb provides the following functions for ease:
