@@ -12,25 +12,24 @@
 #include "simAVRHeader.h"
 #endif
 
-enum States { SMStart, Init, Wait, Down1, Down2, Reset } State;
+enum States { Init, Wait, Down1, Down2, Reset } State;
+
+
 
 void TickFct() {
 	switch(State) { // Transitions
-		case SMStart:
-			State = Init;
-			break;
 		case Init:
 			State = Wait;
 			break;
 		case Wait:
-			if ((PINA & 0x01) && (PINA & 0x02)) { // if A0 and A1
+			if ((~PINA & 0x01) && (~PINA & 0x02)) { // if A0 and A1
 				State = Reset;
 			}
-			else if ((PINA & 0x01)) { // if A0
+			else if ((~PINA & 0x01)) { // if A0
 				if (PINC < 9) PORTC = PINC + 1;	// if C < 9			
 				State = Down1;
 			}
-			else if ((PINA & 0x02)) { // if A1
+			else if ((~PINA & 0x02)) { // if A1
 				if (PINC > 0) PORTC = PINC - 1;	// if C > 0;			
 				State = Down2;
 			}
@@ -39,10 +38,10 @@ void TickFct() {
 			}
 			break;
 		case Down1:
-			if (!(PINA & 0x01)) { // if !A0
+			if (!(~PINA & 0x01)) { // if !A0
 				State = Wait;
 			}
-			else if ((PINA & 0x01) && (PINA & 0x02)) { // if A0 and A1
+			else if ((~PINA & 0x01) && (~PINA & 0x02)) { // if A0 and A1
 				State = Reset;
 			}
 			else {
@@ -50,10 +49,10 @@ void TickFct() {
 			}
 			break;
 		case Down2:
-			if (!(PINA & 0x02)) { // if !A1
+			if (!(~PINA & 0x02)) { // if !A1
 				State = Wait;
 			}
-			else if ((PINA & 0x02) && (PINA & 0x01)) { // if A1 and A0
+			else if ((~PINA & 0x02) && (~PINA & 0x01)) { // if A1 and A0
 				State = Reset;
 			}
 			else {
@@ -61,14 +60,14 @@ void TickFct() {
 			}
 			break;
 		case Reset:
-			if ((PINA & 0x01) && (PINA & 0x02)) { // if A0 and A1
+			if ((~PINA & 0x01) && (~PINA & 0x02)) { // if A0 and A1
 				State = Reset;
 			}
 			else {
 				State = Wait;
 			}
 		default:
-			State = SMStart;
+			State = Init;
 			break;
 	}
 
@@ -92,7 +91,7 @@ int main(void) {
 	//TimerSet(2000);
 	//TimerOn;
 
-	State = SMStart;
+	State = Init;
 	while (1) {
 		TickFct();	
 	}
