@@ -1,7 +1,7 @@
 /*	Author: Christopher Young - cyoun069@ucr.edu
  *  	Partner(s) Name: 
  *	Lab Section: 22
- *	Assignment: Lab #9 Exercise #4
+ *	Assignment: Lab #9 Exercise #3
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
@@ -86,7 +86,7 @@ void TickFct_Speaker() {
 			S_State = S_Wait;
 			break;
 		case S_Wait:
-			if (!(PINA & 0x04)) { // A0
+			if (!(PINA & 0x01)) { // A0
 				S_State = S_Play1;
 			}
 			else {
@@ -94,7 +94,7 @@ void TickFct_Speaker() {
 			}
 			break;
 		case S_Play1:
-			if (PINA & 0x04) { // !A0
+			if (PINA & 0x01) { // !A0
 				S_State = S_Wait;
 			}
 			else {
@@ -102,7 +102,7 @@ void TickFct_Speaker() {
 			}
 			break;
 		case S_Play2:
-			if (PINA & 0x04) { // !A0
+			if (PINA & 0x01) { // !A0
 				S_State = S_Wait;
 			}
 			else {
@@ -119,55 +119,6 @@ void TickFct_Speaker() {
 			break;
 		case S_Play2:
 			speakerOutput = 0x00;
-			break;
-		default:
-			break;
-	}
-}
-
-enum FC_States {FC_Init, FC_Wait, FC_Up, FC_Down} FC_State;
-static double frequency;
-void TickFct_FrequencyControl() {
-	switch(FC_State) {
-		case FC_Init:
-			FC_State = FC_Wait;
-			break;
-		case FC_Wait:
-			if (!(PINA & 0x01) && (PINA & 0x02) && (PINA & 0x04)) { // only A0
-				FC_State = FC_Up;
-				if (frequency > 0) { --frequency; }
-			}
-			else if ((PINA & 0x01) && !(PINA & 0x02) && (PINA & 0x04)) { // only A1
-				FC_State = FC_Down;
-				++frequency;
-			}
-			else {
-				FC_State = FC_Wait;
-			}
-			break;
-		case FC_Up:
-			if (PINA & 0x01) { // !A0
-				FC_State = FC_Wait;
-			}
-			else {
-				FC_State = FC_Up;
-			}	
-			break;
-		case FC_Down:
-			if (PINA & 0x02) { // !A1
-				FC_State = FC_Wait;
-			}
-			else {
-				FC_State = FC_Down;
-			}	
-			break;
-		default:
-			break;
-	}
-
-	switch(FC_State) {
-		case FC_Init:
-			frequency = 3;
 			break;
 		default:
 			break;
@@ -200,8 +151,7 @@ int main(void) {
   	
 	unsigned long TL_elapsedTime = 300;
 	unsigned long BL_elapsedTime = 1000;
-	unsigned long S_elapsedTime = frequency;
-	unsigned long FC_elapsedTime = 1;
+	unsigned long S_elapsedTime = 2;
 	unsigned long CL_elapsedTime = 300;
 	const unsigned long timerPeriod = 1;
 	
@@ -211,7 +161,6 @@ int main(void) {
 	TL_State = TL_Init;
 	BL_State = BL_Init;
 	S_State = S_Init;
-	FC_State = FC_Init;
 	CL_State = CL_Init;
 
 	while (1) {
@@ -223,15 +172,11 @@ int main(void) {
 			TickFct_BlinkLed();
 			BL_elapsedTime = 0;
 		}
-		if (S_elapsedTime >= frequency) {
+		if (S_elapsedTime >= 2) {
 			TickFct_Speaker();
 			S_elapsedTime = 0;
 		}
-		if (FC_elapsedTime >= 1) {
-			TickFct_FrequencyControl();
-			FC_elapsedTime = 0;
-		}
-		if (CL_elapsedTime >= 1) {
+		if (CL_elapsedTime >= 2) {
 			TickFct_CombineLed();
 			CL_elapsedTime = 0;
 		}
@@ -241,7 +186,6 @@ int main(void) {
 		TL_elapsedTime += timerPeriod;
 		BL_elapsedTime += timerPeriod;
 		S_elapsedTime += timerPeriod;
-		FC_elapsedTime += timerPeriod;
 		CL_elapsedTime += timerPeriod;
 	}
 	return 1;
