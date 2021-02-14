@@ -1,7 +1,7 @@
 /*	Author: Christopher Young - cyoun069@ucr.edu
  *  	Partner(s) Name: 
  *	Lab Section: 22
- *	Assignment: Lab #8 Exercise #3
+ *	Assignment: Lab #8 Exercise #2
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
@@ -39,11 +39,9 @@ void PWM_off() {
 	TCCR3B = 0x00;
 }
 
-enum States {Init, Wait, Play} State;
-double noteSequence[] = {293.66, 587.33, 440.00, 415.30, 392.00, 349.23, 293.66, 349.23, 392.00};
-double noteTimeSequence[] = {2, 2, 2, 2, 2, 2, 1, 1, 1};
-double downTimeSequence[] = {1, 1, 2, 1, 1, 1, 0, 0, 0};
-unsigned char i, j, k;
+enum States {Init, Wait, Toggle, ScaleDown, ScaleUp} State;
+double notes[] = {261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25};
+unsigned char i, on;
 
 void TickFct() {
 	switch(State) { // transition
@@ -51,22 +49,52 @@ void TickFct() {
 			State = Wait;
 			break;
 		case Wait:
-			if (!(PINA & 0x01)) { // only A0
-				State = Play;
+			if (!(PINA & 0x01) && (PINA & 0x02) && (PINA & 0x04)) { // only A0
+				State = ScaleDown;
+				if (i > 0) {
+					--i;
+				}
+				set_PWM(notes[i]);
+			}
+			else if ((PINA & 0x01) && !(PINA & 0x02) && (PINA & 0x04)) { // only A1
+				State = Toggle;
+				on = !on;
+				if (on) { set_PWM(notes[i]); }
+				else { set_PWM(0); }
+			}
+			else if ((PINA & 0x01) && (PINA & 0x02) && !(PINA & 0x04)) { // only A2
+				State = ScaleUp;
+				if (i < 7) {
+					++i;
+				}
+				set_PWM(notes[i]);
 			}
 			else {
 				State = Wait;
 			}
 			break;
-		case Play:
-			if (i <= 9) {
-				State = Play;
+		case Toggle:
+			if (PINA & 0x02) { //!A1
+				State = Wait;
 			}
 			else {
+				State = Toggle;
+			}
+			break;
+		case ScaleDown:
+			if (PINA & 0x01) { //!A0
 				State = Wait;
-				set_PWM(0);
-				i = 0;
-				j = 0;
+			}
+			else {
+				State = ScaleDown;
+			}
+			break;
+		case ScaleUp:
+			if (PINA & 0x04) { //!A2
+				State = Wait;
+			}
+			else {
+				State = ScaleUp;
 			}
 			break;
 		default:
@@ -77,24 +105,8 @@ void TickFct() {
 	switch(State) { // action
 		case Init:
 			i = 0;
-			j = 0;
-			k = 0;
+			on = 0;
 			PORTB = 0x40;
-			break;
-		case Play:
-			if (j < noteTimeSequence[i]) {
-				set_PWM(noteSequence[i]);
-				++j;
-			}
-			else if (k < downTimeSequence[i]) {
-				set_PWM(0);
-				++k;
-			}
-			else {
-				++i;
-				j = 0;
-				k = 0;
-			}
 			break;
 		default:
 			break;
