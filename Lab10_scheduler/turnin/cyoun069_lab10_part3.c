@@ -176,81 +176,6 @@ int doorbellSMTick(int state) {
 	return state;
 }
 
-enum changeCombo_States { changeCombo_wait, changeCombo_record, changeCombo_pressed1, changeCombo_finish, changeCombo_confirm, changeCombo_pressed2}; 
-unsigned char newSequence[4] = {};
-unsigned char comboIndex = 0;
-unsigned char timeToConfirm = 0;
-int changeComboSMTick(int state) {
-	unsigned char press = ~PINA & 0x01;
-	switch(state) {
-		case changeCombo_wait:
-			//PORTB = 0x01;
-			if (press && (GetKeypadKey() == '*')) {
-				state = changeCombo_record;
-				comboIndex = 0;
-			}
-			else state = changeCombo_wait;
-			break;
-		case changeCombo_record:
-			//PORTB = 0x02;
-			if (comboIndex == 4) state = changeCombo_finish;
-			else if (press && (GetKeypadKey() == '*')) state = changeCombo_record;
-			else if (press && (GetKeypadKey() != '\0')) {
-				//PORTB = PINB + 1;
-				state = changeCombo_pressed1;
-				newSequence[comboIndex] = GetKeypadKey();
-				comboIndex++;
-			}
-			else {
-				state = changeCombo_wait;
-			}
-			break;
-		case changeCombo_pressed1:
-			//PORTB = 0x04;
-			if (GetKeypadKey() == '*') state = changeCombo_record;
-			else state = changeCombo_pressed1;
-			break;
-		case changeCombo_finish:
-			//PORTB = 0xFF;
-			if ( ! (press || (GetKeypadKey() == '*')) ) {
-				state = changeCombo_confirm;
-				comboIndex = 0;
-				timeToConfirm = 0;
-			}
-			else state = changeCombo_finish;
-			break;
-		case changeCombo_confirm:
-			//PORTB = 0xFF;
-			if (timeToConfirm > 21) state = changeCombo_wait;
-			else if (comboIndex == 4) {
-				state = changeCombo_wait;
-				
-				numberSequence[0] = newSequence[0];
-				numberSequence[1] = newSequence[1];
-				numberSequence[2] = newSequence[2];
-				numberSequence[3] = newSequence[3];				
-
-				sequenceLength = 4;
-			}
-			else if (GetKeypadKey() == newSequence[comboIndex]) {
-				state = changeCombo_pressed2;				
-				comboIndex++;
-			}
-			break;
-		case changeCombo_pressed2:
-			if (GetKeypadKey() == '\0') state = changeCombo_confirm;
-			else state = changeCombo_pressed2;
-			break;
-		default: state = changeCombo_wait;
-	}
-
-	switch(state) {
-		case changeCombo_confirm: timeToConfirm++; break;	
-		default: break;
-	}
-
-	return state;
-}
 
 enum display_States { display_display };
 int displaySMTick(int state) {
@@ -289,8 +214,8 @@ int main(void) {
 	DDRB = 0xFF; PORTB = 0x40; // Configure port B's 8 pins as output initialized as 0x00
 	DDRC = 0xF0; PORTC = 0x0F; // Configure port C7-C4 as outputs and C3-C0 as inputs
 
-	static task task1, task2, task3, task4, task5;
-	task *tasks[] = { &task1, &task2, &task3, &task4, &task5 };
+	static task task1, task2, task3, task4;
+	task *tasks[] = { &task1, &task2, &task3, &task4 };
 	const unsigned short numTasks = sizeof(tasks)/sizeof(task*);
 
 	const char start = -1;
@@ -317,13 +242,7 @@ int main(void) {
 	task4.state = start;
 	task4.period = 200;
 	task4.elapsedTime = task4.period;
-	task4.TickFct = &doorbellSMTick;
-
-	// Task 5 (changeComboSM)
-	task5.state = start;
-	task5.period = 100;
-	task5.elapsedTime = task5.period;
-	task5.TickFct = &changeComboSMTick;	
+	task4.TickFct = &doorbellSMTick;	
 
 	unsigned short i; // iterator
 
