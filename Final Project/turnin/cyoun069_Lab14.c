@@ -534,7 +534,7 @@ int Display_Tick(int state) {
 		case Display_display:
 			if (i >= 3) i = 0;
 			// LED Matrix (Menu / Game)
-			transmit_data(col[i]);
+			PORTC = col[i];
 			PORTD = ~row[i];
 
 			// single LED (Scoreboard)
